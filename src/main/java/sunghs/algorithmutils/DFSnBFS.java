@@ -5,9 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-public class DFS {
+@Slf4j
+public class DFSnBFS {
 
     public static TreeNode get() {
         TreeNode root = new TreeNode(10);
@@ -25,6 +27,7 @@ public class DFS {
 
     /**
      * TreeNode 에 대한 dfs 순회
+     *
      * @param root TreeNode 의 root
      * @return 순회 순서 배열
      */
@@ -34,7 +37,7 @@ public class DFS {
 
         stack.push(root);
 
-        while(!stack.isEmpty()) {
+        while (!stack.isEmpty()) {
             // current에 왔으므로 마킹
             TreeNode current = stack.pop();
             result.add(current.val);
@@ -42,10 +45,10 @@ public class DFS {
             // left의 if가 더 빠르므로, stack 의 아랫쪽에 쌓인다. (root -> left -> left -> left -> right -> right .. 로 쌓이게 될텐데 stack은 꺼내면 right 부터 나오게 되므로)
             // 따라서 아래 코드는 right부터 돌게 된다.
             // 왼쪽순회가 먼저 필요하면 if문 위치를 바꾸면 된다.
-            if(current.left != null) {
+            if (current.left != null) {
                 stack.push(current.left);
             }
-            if(current.right != null) {
+            if (current.right != null) {
                 stack.push(current.right);
             }
         }
@@ -54,6 +57,7 @@ public class DFS {
 
     /**
      * TreeNode 에 대한 bfs 순회
+     *
      * @param root TreeNode 의 root
      * @return 순회 순서 배열
      */
@@ -63,21 +67,66 @@ public class DFS {
 
         queue.add(root);
 
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             TreeNode current = queue.poll();
             result.add(current.val);
 
             // 왼쪽부터 오른쪽 depth를 쓸고 지나간다.
             // 오른쪽->왼쪽이 필요하면 if 순서를 바꾼다.
-            if(current.left != null) {
+            if (current.left != null) {
                 queue.add(current.left);
             }
-            if(current.right != null) {
+            if (current.right != null) {
                 queue.add(current.right);
             }
         }
         return result.stream().mapToInt(value -> value).toArray();
     }
+
+    /**
+     * 음료수 얼려먹기의 N x M 맵 dfs 문제
+     *
+     * @param map 지도, 0이 음료수 얼음을 얼릴수 있고, 1이 얼릴수 없음
+     * @return 음료수 얼음 갯수
+     */
+    public int n_m_dfs(int[][] map) {
+        int result = 0;
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                if (n_m_core_dfs(map, i, j)) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * recursive dfs 를 위한 호출,
+     * 해당 좌표의 map을 1로 만들고 동서남북으로 recursive 해 1로 만들고 한덩어리 true 를 return 함
+     *
+     * @param map NxM 지도
+     * @param x   가로
+     * @param y   세로
+     * @return 만들었는지 여부
+     */
+    public boolean n_m_core_dfs(int[][] map, int x, int y) {
+        if (x < 0 || x >= map.length || y < 0 || y >= map[0].length) {
+            return false;
+        }
+        if (map[x][y] == 0) {
+            map[x][y] = 1;
+            n_m_core_dfs(map, x + 1, y); //동
+            n_m_core_dfs(map, x - 1, y); //서
+            n_m_core_dfs(map, x, y - 1); //남
+            n_m_core_dfs(map, x, y + 1); //북
+            return true;
+        }
+        return false;
+    }
+
+
+
 
     @Test
     public void test() {
@@ -97,13 +146,16 @@ public class DFS {
             System.out.print(value + " -> ");
         }
     }
-}
 
-class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
-    TreeNode(int val) {
-        this.val = val;
+    @Test
+    public void test2() {
+        int[][] map = {
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 1, 1},
+            {1, 1, 1, 1, 1},
+            {0, 0, 0, 0, 0}
+        };
+        int result = n_m_dfs(map);
+        log.info("result {}", result);
     }
 }
