@@ -52,6 +52,11 @@ public class DFS {
         return result.stream().mapToInt(value -> value).toArray();
     }
 
+    /**
+     * TreeNode 에 대한 bfs 순회
+     * @param root TreeNode 의 root
+     * @return 순회 순서 배열
+     */
     public static int[] treeNode_bfs(TreeNode root) {
         Queue<TreeNode> queue = new LinkedList<>();
         List<Integer> result = new ArrayList<>();
